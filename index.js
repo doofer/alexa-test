@@ -25,21 +25,34 @@ alexaApp.express({
 // from here on you can setup any other express routes or middlewares as normal
 app.set("view engine", "ejs");
 
-alexaApp.launch(function(request, response) {
+alexaApp.launch(function (request, response) {
     response.say("You launched the app!");
 });
 
-alexaApp.dictionary = { "names": ["bob","tejas","oskar"] };
+alexaApp.dictionary = {"names": ["bob", "tejas", "oskar"]};
 
 alexaApp.intent("nameIntent", {
-        "slots": { "NAME": "LITERAL" },
+        "slots": {"NAME": "LITERAL"},
         "utterances": [
             "my {name is|name's} {names|NAME}", "set my name to {names|NAME}"
         ]
     },
-    function(request, response) {
-	var name = request.slot("NAME");
+    function (request, response) {
+        var name = request.slot("NAME");
         response.say("You changed your fucking name to " + name);
+    }
+);
+alexaApp.intent("timeIntent", {
+        "utterances": [
+            "tell me what time is it", "what time is it"
+        ]
+    },
+    function (request, response) {
+        var options = {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'};
+        var today = new Date(),
+            todayDateString = today.toLocaleDateString('en-US', options),
+            todayTimeString = today.toLocaleTimeString('en-US');
+        response.say("It is " + todayDateString + ' ' + todayTimeString);
     }
 );
 
