@@ -79,7 +79,10 @@ alexaApp.intent("foodIntent", {
 
         return appYelpClient.search('pizza', 'Torstrasse, Berlin').then((resp)=> {
             let restaurants = resp.businesses.reduce((names, item)=> {
-                return names.push(item.name);
+                if(!names){
+                    names = [];
+                }
+                return names.concat(item.name);
             }, []).join(',');
 
             response.say("Top restaurants are  " + restaurants);
