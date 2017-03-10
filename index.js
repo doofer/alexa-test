@@ -1,5 +1,10 @@
 var express = require("express");
 var alexa = require("alexa-app");
+const request = require('request');
+const config = require('./config');
+
+const YelpClient = require('./yelp/client');
+let appYelpClient = new YelpClient(config, request);
 
 var PORT = process.env.port || 8080;
 var app = express();
@@ -29,7 +34,10 @@ alexaApp.launch(function (request, response) {
     response.say("You launched the app!");
 });
 
-alexaApp.dictionary = {"names": ["bob", "tejas", "oskar"]};
+alexaApp.dictionary = {
+    "names": ["bob", "tejas", "oskar"],
+    foods: ['pizza', 'pasta', 'burgers', 'sushi', 'sandwiches', 'soup', 'asian']
+};
 
 alexaApp.intent("nameIntent", {
         "slots": {"NAME": "LITERAL"},
@@ -53,6 +61,31 @@ alexaApp.intent("timeIntent", {
             todayDateString = today.toLocaleDateString('en-US', options),
             todayTimeString = today.toLocaleTimeString('en-US');
         response.say("It is " + todayDateString + ' ' + todayTimeString);
+    }
+);
+
+alexaApp.intent("foodIntent", {
+        "slots": {"FOOD": "LITERAL"},
+        "utterances": [
+            "best place in Torstrasse,Berlin for {foods|FOOD}"
+        ]
+    },
+    function (request, response) {
+        var food = request.slot("FOOD");
+
+        if (!food) {
+            return response.say('You must specify a valid food type!');
+        }
+
+        return appYelpClient.search('pizza', 'Torstrasse, Berlin').then((resp)=> {
+            let restaurants = resp.businesses.reduce((names, item)=> {
+                return names.push(item.name);
+            }, []).join(',');
+
+            response.say("Top restaurants are  " + restaurants);
+        }).catch(()=> {
+            response.say('Could not determine top restaurants!');
+        });
     }
 );
 
