@@ -83,7 +83,8 @@ alexaApp.intent("foodIntent", {
             }, []).join(',');
 
             response.say("Top restaurants are  " + restaurants);
-        }).catch(()=> {
+        }).catch((err)=> {
+            console.error(err);
             response.say('Could not determine top restaurants!');
         });
     }
