@@ -67,17 +67,18 @@ alexaApp.intent("timeIntent", {
 alexaApp.intent("foodIntent", {
         "slots": {"FOOD": "LITERAL"},
         "utterances": [
-            "best place in Torstrasse,Berlin for {foods|FOOD}"
+            "best place for {foods|FOOD}"
         ]
     },
     function (request, response) {
-        var food = request.slot("FOOD");
+        let place = 'Torstrasse, Berlin';
+        let food = request.slot("FOOD");
 
         if (!food) {
             return response.say('You must specify a valid food type!');
         }
 
-        return appYelpClient.search('pizza', 'Torstrasse, Berlin').then((resp)=> {
+        return appYelpClient.search(food, place).then((resp)=> {
             let restaurants = resp.businesses.reduce((names, item)=> {
                 if(!names){
                     names = [];
