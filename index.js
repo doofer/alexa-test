@@ -65,13 +65,16 @@ alexaApp.intent("timeIntent", {
 );
 
 alexaApp.intent("foodIntent", {
-        "slots": {"FOOD": "LITERAL"},
+        "slots": {
+            "FOOD": "LITERAL",
+            "LOCATION" : "CustomSlotType"
+        },
         "utterances": [
-            "best place for {foods|FOOD}"
+            "best place for {foods|FOOD} in {-|LOCATION}"
         ]
     },
     function (request, response) {
-        let place = 'Torstrasse, Berlin';
+        let place = request.slot("LOCATION");
         let food = request.slot("FOOD");
 
         if (!food) {
@@ -86,7 +89,7 @@ alexaApp.intent("foodIntent", {
                 return names.concat(item.name);
             }, []).join(',');
 
-            response.say("Top restaurants are  " + restaurants);
+            response.say(`top restaurants in ${place} are ${restaurants}`);
         }).catch((err)=> {
             console.error(err);
             response.say('Could not determine top restaurants!');
