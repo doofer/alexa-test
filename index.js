@@ -81,6 +81,10 @@ alexaApp.intent("foodIntent", {
             return response.say('You must specify a valid food type!');
         }
 
+        if(!place){
+            return response.say('Cannot determine location');
+        }
+
         return appYelpClient.search(food, place).then((resp)=> {
             let restaurants = resp.businesses.reduce((names, item)=> {
                 if(!names){
@@ -88,6 +92,10 @@ alexaApp.intent("foodIntent", {
                 }
                 return names.concat(item.name);
             }, []).join(',');
+
+            if(!restaurants.length){
+                throw Error('Could not get a proper response!');
+            }
 
             response.say(`top restaurants in ${place} are ${restaurants}`);
         }).catch((err)=> {
