@@ -69,6 +69,7 @@ alexaApp.intent("foodIntent", {
             value = value.replace(/ö/g, 'oe');
             value = value.replace(/ü/g, 'ue');
             value = value.replace(/ß/g, 'ss');
+            value = value.replace(/&/g, 'and');
             return value;
         };
 
