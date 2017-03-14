@@ -67,41 +67,83 @@ alexaApp.intent("timeIntent", {
 alexaApp.intent("foodIntent", {
         "slots": {
             "FOOD": "LITERAL",
-            "LOCATION" : "CustomSlotType"
+            "LOCATION": "LOCATION" //this needs to be defined in the amazon dev portal
         },
         "utterances": [
             "best place for {foods|FOOD} in {-|LOCATION}"
         ]
     },
     function (request, response) {
-        let place = request.slot("LOCATION");
-        let food = request.slot("FOOD");
+        let session = request.getSession(),
+            place = request.slot("LOCATION"),
+            food = request.slot("FOOD"),
+            restaurantLocation = [];
 
         if (!food) {
             return response.say('You must specify a valid food type!');
         }
 
-        if(!place){
+        if (!place) {
             return response.say('Cannot determine location');
         }
 
         return appYelpClient.search(food, place).then((resp)=> {
-            let restaurants = resp.businesses.reduce((names, item)=> {
-                if(!names){
+            let restaurants = resp.businesses.reduce((names, item, index)=> {
+                if (!names) {
                     names = [];
                 }
-                return names.concat(item.name);
+
+                restaurantLocation[index] = `${item.location.address1} ${item.location.city}`;
+                return names.concat(`${index}. ${item.name}`);
             }, []).join(',');
 
-            if(!restaurants.length){
+            if (!restaurants.length) {
                 throw Error('Could not get a proper response!');
             }
 
+            restaurantLocation.forEach((item, index)=> {
+                session.set('restaurant-' + index, item);
+            });
+
             response.say(`top restaurants in ${place} are ${restaurants}`);
+            response.shouldEndSession(false);
         }).catch((err)=> {
             console.error(err);
             response.say('Could not determine top restaurants!');
         });
+    }
+);
+
+
+alexaApp.intent("addressFoodIntent", {
+        "slots": {
+            "number": "AMAZON.NUMBER"
+        },
+        "utterances": [
+            "address of {-|number}", "where is number {-|number}"
+        ]
+    },
+    (request, response) => {
+        let session = request.getSession(),
+            restaurantNr = request.slot("number"),
+            restaurantAddress = session.get('restaurant-' + restaurantNr);
+
+        if (!session.get('restaurant-1')) {
+            return response.say('You must require top place first!');
+        }
+
+        if (restaurantNr > 5) {
+            response.say(`Only using top 5 recomandations!`);
+            response.shouldEndSession(false);
+            return;
+        }
+
+        if (restaurantAddress) {
+            response.say(`Address of ${restaurantNr} is ${restaurantAddress}`);
+            return;
+        }
+
+        return response.say('Could not determine the location of the restaurant');
     }
 );
 
