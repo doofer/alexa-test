@@ -100,12 +100,12 @@ alexaApp.intent("addressFoodIntent", {
             "address of {-|NR}", "where is number {-|NR}"
         ]
     },
-    function (request, response) => {
+    function (request, response) {
         let session = request.getSession(),
             restaurantNr = request.slot("NR"),
             restaurantAddress = session.get('restaurant-' + restaurantNr);
 
-        if(!restaurantNr){
+        if (!restaurantNr) {
             response.say(`You must give a 1 to 5 restaurant!`);
             response.shouldEndSession(false);
             return;
@@ -146,7 +146,7 @@ alexaApp.intent("ratingIntent", {
             "{-|number} out of 5"
         ]
     },
-    function (request, response) => {
+    function (request, response) {
         let rating = request.slot("number");
 
 
