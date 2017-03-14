@@ -123,7 +123,11 @@ alexaApp.intent("addressFoodIntent", {
             return;
         }
 
-        return response.say('Could not determine the location of the restaurant');
+        response.say('Could not determine the location of the restaurant');
+        response.card({
+            type: "Simple",
+            content: `Cannot determine location of ${restaurantNr}`
+        });
     }
 );
 
