@@ -163,10 +163,15 @@ alexaApp.intent("ratingIntent", {
         ]
     },
     function (request, response) {
-        let rating = request.slot("number");
+        let rating = request.slot("NR");
 
         if (!rating) {
-            return response.say('Invalid rating, please rate us again.')
+            response.say('Invalid rating, please rate us again.');
+            response.card({
+                type: "Simple",
+                content: `Cannot determine rating of ${rating}`
+            });
+            return;
         }
 
         if (rating <= 5 && rating >= 1) {
