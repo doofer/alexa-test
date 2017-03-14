@@ -64,15 +64,26 @@ alexaApp.intent("foodIntent", {
             return response.say('Cannot determine location');
         }
 
+        var normalizeGermanChars = (value)=> {
+            value = value.replace(/ä/g, 'ae');
+            value = value.replace(/ö/g, 'oe');
+            value = value.replace(/ü/g, 'ue');
+            value = value.replace(/ß/g, 'ss');
+            return value;
+        };
+
+
         return appYelpClient.search(food, place).then((resp)=> {
             let restaurants = resp.businesses.reduce((names, item, index)=> {
                 if (!names) {
                     names = [];
                 }
 
-                let locationIndex = (index + 1);
+                let locationIndex = (index + 1),
+                    restaurantName = normalizeGermanChars(item.name);
+
                 restaurantLocation[locationIndex] = `${item.location.address1} ${item.location.city}`;
-                return names.concat(`${locationIndex}. ${item.name}`);
+                return names.concat(`${locationIndex}. ${restaurantName}`);
             }, []).join(',');
 
             if (!restaurants.length) {
