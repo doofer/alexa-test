@@ -70,7 +70,7 @@ alexaApp.intent("foodIntent", {
                     names = [];
                 }
 
-                let locationIndex = index +=1;
+                let locationIndex = (index + 1);
                 restaurantLocation[locationIndex] = `${item.location.address1} ${item.location.city}`;
                 return names.concat(`${locationIndex}. ${item.name}`);
             }, []).join(',');
@@ -80,7 +80,7 @@ alexaApp.intent("foodIntent", {
             }
 
             restaurantLocation.forEach((item, index)=> {
-                session.set('restaurant-' + locationIndex, item);
+                session.set('restaurant-' + index, item);
             });
 
             response.say(`top restaurants in ${place} are ${restaurants}`);
