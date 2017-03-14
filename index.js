@@ -94,16 +94,22 @@ alexaApp.intent("foodIntent", {
 
 alexaApp.intent("addressFoodIntent", {
         "slots": {
-            "number": "AMAZON.NUMBER"
+            "NR": "AMAZON.NUMBER"
         },
         "utterances": [
-            "address of {-|number}", "where is number {-|number}"
+            "address of {-|NR}", "where is number {-|NR}"
         ]
     },
-    (request, response) => {
+    function (request, response) => {
         let session = request.getSession(),
-            restaurantNr = request.slot("number"),
+            restaurantNr = request.slot("NR"),
             restaurantAddress = session.get('restaurant-' + restaurantNr);
+
+        if(!restaurantNr){
+            response.say(`You must give a 1 to 5 restaurant!`);
+            response.shouldEndSession(false);
+            return;
+        }
 
         if (!session.get('restaurant-1')) {
             return response.say('You must require top place first!');
@@ -140,7 +146,7 @@ alexaApp.intent("ratingIntent", {
             "{-|number} out of 5"
         ]
     },
-    (request, response) => {
+    function (request, response) => {
         let rating = request.slot("number");
 
 
