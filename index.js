@@ -117,8 +117,12 @@ alexaApp.intent("addressFoodIntent", {
             restaurantNr = request.slot("NR"),
             restaurantAddress = session.get('restaurant-' + restaurantNr);
 
-        if (!restaurantNr) {
+        if (restaurantNr === undefined || restaurantNr === null) {
             response.say(`You must give a 1 to 5 restaurant!`);
+            response.card({
+                type: "Simple",
+                content: `Cannot determine location of ${restaurantNr}`
+            });
             response.shouldEndSession(false);
             return;
         }
