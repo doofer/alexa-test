@@ -140,18 +140,21 @@ alexaApp.intent("addressFoodIntent", {
 
 alexaApp.intent("ratingIntent", {
         "slots": {
-            "number": "AMAZON.NUMBER"
+            "NR": "AMAZON.NUMBER"
         },
         "utterances": [
-            "{-|number} out of 5"
+            "{-|NR} out of five", "rating {-|NR}"
         ]
     },
     function (request, response) {
         let rating = request.slot("number");
 
+        if (!rating) {
+            return response.say('Invalid rating, please rate us again.')
+        }
 
         if (rating <= 5 && rating >= 1) {
-            response.say('Thank you for rating us!')
+            return response.say('Thank you for rating us!')
         }
 
         return response.say('Invalid rating!');
