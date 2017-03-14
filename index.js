@@ -39,30 +39,6 @@ alexaApp.dictionary = {
     foods: ['pizza', 'pasta', 'burgers', 'sushi', 'sandwiches', 'soup', 'asian']
 };
 
-alexaApp.intent("nameIntent", {
-        "slots": {"NAME": "LITERAL"},
-        "utterances": [
-            "my {name is|name's} {names|NAME}", "set my name to {names|NAME}"
-        ]
-    },
-    function (request, response) {
-        var name = request.slot("NAME");
-        response.say("You changed your fucking name to " + name);
-    }
-);
-alexaApp.intent("timeIntent", {
-        "utterances": [
-            "tell me what time is it", "what time is it"
-        ]
-    },
-    function (request, response) {
-        var options = {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'};
-        var today = new Date(),
-            todayDateString = today.toLocaleDateString('en-US', options),
-            todayTimeString = today.toLocaleTimeString('en-US');
-        response.say("It is " + todayDateString + ' ' + todayTimeString);
-    }
-);
 
 alexaApp.intent("foodIntent", {
         "slots": {
@@ -70,6 +46,7 @@ alexaApp.intent("foodIntent", {
             "LOCATION": "LOCATION" //this needs to be defined in the amazon dev portal
         },
         "utterances": [
+            "i want to eat {foods|FOOD} in {-|LOCATION}",
             "best place for {foods|FOOD} in {-|LOCATION}"
         ]
     },
@@ -93,8 +70,8 @@ alexaApp.intent("foodIntent", {
                     names = [];
                 }
 
-                restaurantLocation[index] = `${item.location.address1} ${item.location.city}`;
-                return names.concat(`${index}. ${item.name}`);
+                restaurantLocation[++index] = `${item.location.address1} ${item.location.city}`;
+                return names.concat(`${++index}. ${item.name}`);
             }, []).join(',');
 
             if (!restaurants.length) {
@@ -102,7 +79,7 @@ alexaApp.intent("foodIntent", {
             }
 
             restaurantLocation.forEach((item, index)=> {
-                session.set('restaurant-' + index, item);
+                session.set('restaurant-' + ++index, item);
             });
 
             response.say(`top restaurants in ${place} are ${restaurants}`);
@@ -139,11 +116,35 @@ alexaApp.intent("addressFoodIntent", {
         }
 
         if (restaurantAddress) {
-            response.say(`Address of ${restaurantNr} is ${restaurantAddress}`);
+            response.say(
+                `Address of ${restaurantNr} is ${restaurantAddress}.
+                Please rate from 1 to 5 your experience.`
+            );
             return;
         }
 
         return response.say('Could not determine the location of the restaurant');
+    }
+);
+
+
+alexaApp.intent("ratingIntent", {
+        "slots": {
+            "number": "AMAZON.NUMBER"
+        },
+        "utterances": [
+            "{-|number} out of 5"
+        ]
+    },
+    (request, response) => {
+        let rating = request.slot("number");
+
+
+        if (rating <= 5 && rating >= 1) {
+            response.say('Thank you for rating us!')
+        }
+
+        return response.say('Invalid rating!');
     }
 );
 
