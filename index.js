@@ -80,7 +80,6 @@ alexaApp.intent("foodIntent", {
             }
 
             restaurantLocation.forEach((item, index)=> {
-                let locationIndex = index +=1;
                 session.set('restaurant-' + locationIndex, item);
             });
 
@@ -92,7 +91,6 @@ alexaApp.intent("foodIntent", {
         });
     }
 );
-
 
 alexaApp.intent("addressFoodIntent", {
         "slots": {
